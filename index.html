@@ -1,0 +1,1558 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo dos Baús - Perguntas e Respostas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 30%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #2d3748;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(79, 70, 229, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(16, 185, 129, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(245, 101, 101, 0.04) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .dark-theme {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%) !important;
+            color: #f1f5f9 !important;
+        }
+        
+        .dark-theme::before {
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(168, 85, 247, 0.06) 0%, transparent 50%) !important;
+        }
+        
+        .dark-theme header {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1) !important;
+        }
+        
+        .dark-theme .hud {
+            background: rgba(15, 23, 42, 0.7) !important;
+            border: 1px solid rgba(148, 163, 184, 0.1) !important;
+        }
+        
+        .dark-theme .hud-item {
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.3) 0%, rgba(30, 41, 59, 0.2) 100%) !important;
+            border: 1px solid rgba(148, 163, 184, 0.1) !important;
+        }
+        
+        .dark-theme .chest {
+            background: rgba(30, 41, 59, 0.8) !important;
+            border: 2px solid rgba(148, 163, 184, 0.2) !important;
+            color: #f1f5f9 !important;
+        }
+        
+        .dark-theme .chest.opened {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(16, 185, 129, 0.2) 100%) !important;
+            border-color: rgba(34, 197, 94, 0.5) !important;
+        }
+        
+        .dark-theme .chest.current {
+            border-color: rgba(139, 92, 246, 0.6) !important;
+            box-shadow: 0 0 32px rgba(139, 92, 246, 0.4), 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .dark-theme .modal {
+            background: rgba(15, 23, 42, 0.95) !important;
+            border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            color: #f1f5f9 !important;
+        }
+        
+        .dark-theme .option-btn {
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(30, 41, 59, 0.3) 100%) !important;
+            border: 2px solid rgba(148, 163, 184, 0.2) !important;
+            color: #e2e8f0 !important;
+        }
+        
+        .dark-theme .option-btn:hover {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(99, 102, 241, 0.2) 100%) !important;
+            border-color: rgba(139, 92, 246, 0.4) !important;
+        }
+        
+        .dark-theme .victory-screen {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%) !important;
+        }
+        
+        .dark-theme .victory-stats {
+            background: rgba(15, 23, 42, 0.9) !important;
+            border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            color: #f1f5f9 !important;
+        }
+        
+        .dark-theme .instructions {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(148, 163, 184, 0.1) !important;
+            color: #f1f5f9 !important;
+        }
+        
+        header {
+            text-align: center;
+            padding: 32px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 16px;
+            letter-spacing: -0.01em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        
+        .instructions {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            font-weight: 500;
+            line-height: 1.6;
+        }
+        
+        .hud {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 24px;
+            margin: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .hud-item {
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .hud-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        .hud-value {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-top: 8px;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .chests-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .chest {
+            aspect-ratio: 1;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .chest::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .chest:hover:not(.opened):not(.disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            border-color: rgba(79, 70, 229, 0.3);
+        }
+        
+        .chest:hover:not(.opened):not(.disabled)::before {
+            left: 100%;
+        }
+        
+        .chest:active:not(.opened):not(.disabled) {
+            transform: translateY(-1px);
+            transition: all 0.1s ease;
+        }
+        
+        .chest:focus {
+            outline: 3px solid #FFD700;
+            outline-offset: 2px;
+        }
+        
+        .chest.opened {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+        }
+        
+        .chest.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .chest.current {
+            animation: currentGlow 2s ease-in-out infinite;
+            border-color: rgba(79, 70, 229, 0.5);
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+        }
+        
+        @keyframes currentGlow {
+            0%, 100% { 
+                box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+                border-color: rgba(79, 70, 229, 0.5);
+            }
+            50% { 
+                box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+                border-color: rgba(79, 70, 229, 0.7);
+            }
+        }
+        
+        .chest.opening {
+            animation: naturalOpen 0.6s ease-out;
+        }
+        
+        @keyframes naturalOpen {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.05) translateY(-2px); }
+            60% { transform: scale(1.02) translateY(-1px); }
+            100% { transform: scale(1) translateY(0); }
+        }
+        
+        .chest.sparkle {
+            position: relative;
+            overflow: visible;
+        }
+        
+        .chest.sparkle::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.4) 0%, rgba(16, 185, 129, 0.2) 30%, transparent 70%);
+            border-radius: 50%;
+            animation: modernSparkle 1.2s ease-in-out;
+            z-index: -1;
+        }
+        
+        @keyframes modernSparkle {
+            0% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.3) rotate(180deg); }
+            100% { opacity: 0; transform: scale(1.5) rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        
+        .floating {
+            animation: gentleFloat 4s ease-in-out infinite;
+        }
+        
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+        
+        .chest-number {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .chest-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+        }
+        
+        .modal {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+            transform: scale(0.8) translateY(40px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal-overlay.show .modal {
+            transform: scale(1) translateY(0);
+        }
+        
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #2F1B14;
+            font-weight: bold;
+        }
+        
+        .options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .option-btn {
+            padding: 18px 24px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #374151;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .option-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+            border-radius: 50%;
+        }
+        
+        .option-btn:hover {
+            background: rgba(79, 70, 229, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            border-color: rgba(79, 70, 229, 0.2);
+        }
+        
+        .option-btn:hover::before {
+            left: 100%;
+        }
+        
+        .option-btn:active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .option-btn.correct {
+            animation: correctAnswer 0.6s ease-in-out;
+        }
+        
+        .option-btn.incorrect {
+            animation: incorrectAnswer 0.6s ease-in-out;
+        }
+        
+        @keyframes correctAnswer {
+            0% { background: #DEB887; }
+            50% { background: #90EE90; transform: scale(1.05); }
+            100% { background: #32CD32; }
+        }
+        
+        @keyframes incorrectAnswer {
+            0% { background: #DEB887; }
+            25% { background: #FFB6C1; transform: translateX(-5px); }
+            50% { background: #FF6B6B; transform: translateX(5px); }
+            75% { background: #FFB6C1; transform: translateX(-3px); }
+            100% { background: #DEB887; transform: translateX(0); }
+        }
+        
+        .option-btn:focus {
+            outline: 3px solid #FFD700;
+            outline-offset: 2px;
+        }
+        
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .feedback.correct {
+            background: #90EE90;
+            color: #006400;
+            border: 2px solid #006400;
+        }
+        
+        .feedback.incorrect {
+            background: #FFB6C1;
+            color: #8B0000;
+            border: 2px solid #8B0000;
+        }
+        
+        .victory-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            text-align: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .victory-screen.show {
+            opacity: 1;
+        }
+        
+        .victory-title {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 30px;
+            animation: gentleBounce 2s ease-in-out infinite;
+            letter-spacing: -0.01em;
+        }
+        
+        @keyframes gentleBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1999;
+        }
+        
+        .confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #FFD700;
+            animation: confettiFall 3s linear infinite;
+            border-radius: 2px;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .success-particle {
+            animation: successParticle 1s ease-out forwards;
+        }
+        
+        @keyframes successParticle {
+            0% {
+                opacity: 1;
+                transform: scale(1) translate(0, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.5) translate(var(--dx), var(--dy));
+            }
+        }
+        
+        .chest-particles {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1px;
+            height: 1px;
+            pointer-events: none;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .victory-stats {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+            font-size: 1.2rem;
+            color: #374151;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideInUp 0.5s ease 0.2s forwards;
+        }
+        
+        @keyframes slideInUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .restart-btn {
+            padding: 20px 40px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideInUp 0.5s ease 0.4s forwards;
+        }
+        
+        .restart-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .restart-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+        
+        .restart-btn:hover::before {
+            left: 100%;
+        }
+        
+        .accessibility-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 1001;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .accessibility-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+            background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+        }
+        
+        .reset-btn {
+            position: fixed;
+            top: 20px;
+            right: 90px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 1001;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+        
+        @media (max-width: 768px) {
+            .chests-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .hud {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal {
+                padding: 20px;
+            }
+            
+            .option-btn {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .chests-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .chest-number {
+                font-size: 1.2rem;
+            }
+            
+            .chest-icon {
+                width: 30px;
+                height: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="reset-btn" onclick="confirmReset()" aria-label="Resetar jogo" title="Resetar Jogo">🔄</button>
+    <button class="accessibility-btn" onclick="toggleHighContrast()" aria-label="Ativar modo escuro">🌙</button>
+    
+    <header>
+        <h1>🏆 Jogo dos Baús 🏆</h1>
+        <div class="instructions">
+            Clique nos baús para responder perguntas! Acerte para abrir o baú e continuar. Complete todos os 10 baús para vencer!
+        </div>
+    </header>
+    
+    <div class="game-container">
+        <div class="hud">
+            <div class="hud-item">
+                <span>Baús Abertos</span>
+                <span class="hud-value" id="opened-count">0 / 10</span>
+            </div>
+            <div class="hud-item">
+                <span>Acertos</span>
+                <span class="hud-value" id="correct-count">0</span>
+            </div>
+            <div class="hud-item">
+                <span>Erros</span>
+                <span class="hud-value" id="error-count">0</span>
+            </div>
+            <div class="hud-item">
+                <span>Tempo</span>
+                <span class="hud-value" id="timer">00:00</span>
+            </div>
+        </div>
+        
+        <div class="chests-grid" id="chests-grid" role="grid" aria-label="Grade de baús">
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="question-text">
+        <div class="modal">
+            <div class="question-text" id="question-text"></div>
+            <div class="options" id="options" role="radiogroup" aria-labelledby="question-text"></div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+    
+    <div class="victory-screen" id="victory-screen">
+        <div class="victory-title">🎉 PARABÉNS! 🎉</div>
+        <div class="victory-stats" id="victory-stats"></div>
+        <button class="restart-btn" onclick="resetGame()">🔄 Jogar Novamente</button>
+    </div>
+
+    <script>
+        let QUESTIONS = [];
+        let selectedQuestions = [];
+        
+        // Perguntas incorporadas para funcionar com file://
+        const EMBEDDED_QUESTIONS = {
+            "perguntas": [
+                {
+                    "id": 1,
+                    "question": "Qual é a capital do Brasil?",
+                    "options": ["Rio de Janeiro", "São Paulo", "Brasília", "Belo Horizonte"],
+                    "correctIndex": 2,
+                    "explanation": "Brasília é a capital federal do Brasil desde 1960!",
+                    "explanationWrong": "Embora seja uma cidade importante, não é a capital do país."
+                },
+                {
+                    "id": 2,
+                    "question": "Quanto é 2 + 2?",
+                    "options": ["3", "4", "5"],
+                    "correctIndex": 1,
+                    "explanation": "2 + 2 = 4. Matemática básica!",
+                    "explanationWrong": "Essa não é a soma correta. Revise a adição básica."
+                },
+                {
+                    "id": 3,
+                    "question": "Qual planeta é conhecido como 'planeta vermelho'?",
+                    "options": ["Vênus", "Marte", "Júpiter", "Saturno"],
+                    "correctIndex": 1,
+                    "explanation": "Marte tem coloração avermelhada devido ao óxido de ferro em sua superfície.",
+                    "explanationWrong": "Este planeta não tem a característica cor avermelhada."
+                },
+                {
+                    "id": 4,
+                    "question": "Qual destas é uma cor primária?",
+                    "options": ["Verde", "Roxo", "Vermelho", "Laranja"],
+                    "correctIndex": 2,
+                    "explanation": "As cores primárias são vermelho, azul e amarelo.",
+                    "explanationWrong": "Esta é uma cor secundária, formada pela mistura de cores primárias."
+                },
+                {
+                    "id": 5,
+                    "question": "Qual é o maior oceano do mundo?",
+                    "options": ["Atlântico", "Índico", "Ártico", "Pacífico"],
+                    "correctIndex": 3,
+                    "explanation": "O Oceano Pacífico é o maior oceano, cobrindo cerca de 1/3 da superfície terrestre.",
+                    "explanationWrong": "Este oceano é grande, mas não é o maior do planeta."
+                },
+                {
+                    "id": 6,
+                    "question": "Quem escreveu 'Dom Casmurro'?",
+                    "options": ["José de Alencar", "Machado de Assis", "Clarice Lispector", "Guimarães Rosa"],
+                    "correctIndex": 1,
+                    "explanation": "Machado de Assis é considerado um dos maiores escritores brasileiros.",
+                    "explanationWrong": "Este autor não escreveu 'Dom Casmurro', embora seja um grande escritor brasileiro."
+                },
+                {
+                    "id": 7,
+                    "question": "Qual é a principal linguagem de programação dos navegadores web?",
+                    "options": ["Python", "Java", "JavaScript", "C++"],
+                    "correctIndex": 2,
+                    "explanation": "JavaScript é a linguagem nativa dos navegadores web."
+                },
+                {
+                    "id": 8,
+                    "question": "Qual é a sigla para Inteligência Artificial?",
+                    "options": ["AI", "IA", "IT", "IC"],
+                    "correctIndex": 1,
+                    "explanation": "IA é a abreviação de Inteligência Artificial em português."
+                },
+                {
+                    "id": 9,
+                    "question": "Em que continente fica o Egito?",
+                    "options": ["Ásia", "África", "Europa", "América"],
+                    "correctIndex": 1,
+                    "explanation": "O Egito está localizado no nordeste da África."
+                },
+                {
+                    "id": 10,
+                    "question": "Qual é o gás mais abundante na atmosfera terrestre?",
+                    "options": ["Oxigênio", "Nitrogênio", "Dióxido de Carbono", "Hidrogênio"],
+                    "correctIndex": 1,
+                    "explanation": "O nitrogênio compõe cerca de 78% da atmosfera terrestre."
+                },
+                {
+                    "id": 11,
+                    "question": "Qual é o menor país do mundo?",
+                    "options": ["Mônaco", "Vaticano", "San Marino", "Liechtenstein"],
+                    "correctIndex": 1,
+                    "explanation": "O Vaticano tem apenas 0,44 km² de área."
+                },
+                {
+                    "id": 12,
+                    "question": "Quantos estados tem o Brasil?",
+                    "options": ["25", "26", "27", "28"],
+                    "correctIndex": 1,
+                    "explanation": "O Brasil tem 26 estados mais o Distrito Federal."
+                },
+                {
+                    "id": 13,
+                    "question": "Qual é o maior animal do mundo?",
+                    "options": ["Elefante Africano", "Baleia Azul", "Girafa", "Tubarão Branco"],
+                    "correctIndex": 1,
+                    "explanation": "A baleia azul pode chegar a 30 metros de comprimento."
+                },
+                {
+                    "id": 14,
+                    "question": "Em que ano o homem pisou na Lua pela primeira vez?",
+                    "options": ["1967", "1968", "1969", "1970"],
+                    "correctIndex": 2,
+                    "explanation": "Neil Armstrong pisou na Lua em 20 de julho de 1969."
+                },
+                {
+                    "id": 15,
+                    "question": "Qual é a moeda do Japão?",
+                    "options": ["Yuan", "Won", "Yen", "Dong"],
+                    "correctIndex": 2,
+                    "explanation": "O Yen é a moeda oficial do Japão."
+                },
+                {
+                    "id": 16,
+                    "question": "Quantos minutos tem uma hora?",
+                    "options": ["50", "60", "70", "80"],
+                    "correctIndex": 1,
+                    "explanation": "Uma hora tem 60 minutos."
+                },
+                {
+                    "id": 17,
+                    "question": "Qual é o rio mais longo do mundo?",
+                    "options": ["Rio Amazonas", "Rio Nilo", "Rio Mississippi", "Rio Yangtzé"],
+                    "correctIndex": 1,
+                    "explanation": "O Rio Nilo, com 6.650 km, é considerado o mais longo do mundo."
+                },
+                {
+                    "id": 18,
+                    "question": "Quantos lados tem um triângulo?",
+                    "options": ["2", "3", "4", "5"],
+                    "correctIndex": 1,
+                    "explanation": "Um triângulo sempre tem três lados."
+                },
+                {
+                    "id": 19,
+                    "question": "Qual é o animal símbolo da WWF?",
+                    "options": ["Tigre", "Leão", "Panda", "Urso Polar"],
+                    "correctIndex": 2,
+                    "explanation": "O panda gigante é o símbolo da WWF desde 1961."
+                },
+                {
+                    "id": 20,
+                    "question": "Em que cidade fica a Torre Eiffel?",
+                    "options": ["Londres", "Roma", "Paris", "Berlim"],
+                    "correctIndex": 2,
+                    "explanation": "A Torre Eiffel está localizada em Paris, França."
+                },
+                {
+                    "id": 21,
+                    "question": "Qual é o maior planeta do sistema solar?",
+                    "options": ["Terra", "Saturno", "Júpiter", "Netuno"],
+                    "correctIndex": 2,
+                    "explanation": "Júpiter é o maior planeta do nosso sistema solar."
+                },
+                {
+                    "id": 22,
+                    "question": "Quantos continentes existem?",
+                    "options": ["5", "6", "7", "8"],
+                    "correctIndex": 2,
+                    "explanation": "Existem 7 continentes: América do Norte, América do Sul, Europa, Ásia, África, Oceania e Antártida."
+                },
+                {
+                    "id": 23,
+                    "question": "Qual é a fórmula química da água?",
+                    "options": ["H2O", "CO2", "NaCl", "O2"],
+                    "correctIndex": 0,
+                    "explanation": "H2O representa duas moléculas de hidrogênio e uma de oxigênio.",
+                    "explanationWrong": "Esta fórmula representa outro composto químico, não a água."
+                },
+                {
+                    "id": 24,
+                    "question": "Quem pintou a Mona Lisa?",
+                    "options": ["Michelangelo", "Leonardo da Vinci", "Picasso", "Van Gogh"],
+                    "correctIndex": 1,
+                    "explanation": "Leonardo da Vinci pintou a Mona Lisa entre 1503 e 1519."
+                },
+                {
+                    "id": 25,
+                    "question": "Qual é o metal mais abundante na crosta terrestre?",
+                    "options": ["Ferro", "Alumínio", "Cobre", "Ouro"],
+                    "correctIndex": 1,
+                    "explanation": "O alumínio representa cerca de 8% da crosta terrestre."
+                },
+                {
+                    "id": 26,
+                    "question": "Em que ano foi descoberto o Brasil?",
+                    "options": ["1498", "1500", "1502", "1504"],
+                    "correctIndex": 1,
+                    "explanation": "O Brasil foi descoberto por Pedro Álvares Cabral em 1500."
+                },
+                {
+                    "id": 27,
+                    "question": "Qual é a velocidade da luz?",
+                    "options": ["300.000 km/s", "150.000 km/s", "450.000 km/s", "600.000 km/s"],
+                    "correctIndex": 0,
+                    "explanation": "A velocidade da luz no vácuo é aproximadamente 300.000 km/s."
+                },
+                {
+                    "id": 28,
+                    "question": "Quantos ossos tem o corpo humano adulto?",
+                    "options": ["196", "206", "216", "226"],
+                    "correctIndex": 1,
+                    "explanation": "O corpo humano adulto tem 206 ossos."
+                },
+                {
+                    "id": 29,
+                    "question": "Qual é o idioma mais falado no mundo?",
+                    "options": ["Inglês", "Mandarim", "Espanhol", "Hindi"],
+                    "correctIndex": 1,
+                    "explanation": "O mandarim (chinês) é falado por mais de 1 bilhão de pessoas."
+                },
+                {
+                    "id": 30,
+                    "question": "Em que estação do ano as folhas das árvores ficam amarelas?",
+                    "options": ["Primavera", "Verão", "Outono", "Inverno"],
+                    "correctIndex": 2,
+                    "explanation": "No outono, as folhas ficam amarelas e começam a cair."
+                }
+            ]
+        };
+        
+        async function loadQuestions() {
+            const isFileProtocol = window.location.protocol === 'file:';
+            
+            if (isFileProtocol) {
+                console.log('📁 Detectado protocolo file:// - usando perguntas incorporadas');
+                QUESTIONS = EMBEDDED_QUESTIONS.perguntas;
+                console.log(`✅ ${QUESTIONS.length} perguntas carregadas (modo file://)`);
+                selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
+                return;
+            }
+            
+            console.log('🌍 Detectado protocolo HTTP - tentando carregar via fetch');
+            
+            const possiblePaths = [
+                './perguntas.json',
+                'perguntas.json',
+                '/perguntas.json'
+            ];
+            
+            let lastError;
+            
+            for (const path of possiblePaths) {
+                try {
+                    console.log(`Tentando carregar perguntas de: ${path}`);
+                    const response = await fetch(path);
+                    
+                    console.log(`Response status: ${response.status} ${response.statusText}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data || !data.perguntas || !Array.isArray(data.perguntas)) {
+                        throw new Error('Formato inválido do arquivo JSON');
+                    }
+                    
+                    QUESTIONS = data.perguntas;
+                    console.log(`✅ ${QUESTIONS.length} perguntas carregadas via HTTP de ${path}`);
+                    
+                    if (QUESTIONS.length < 10) {
+                        throw new Error(`Apenas ${QUESTIONS.length} perguntas encontradas. Mínimo necessário: 10`);
+                    }
+                    
+                    selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
+                    return; // Sucesso - sai da função
+                    
+                } catch (error) {
+                    console.warn(`❌ Falha ao carregar de ${path}:`, error.message);
+                    lastError = error;
+                    continue;
+                }
+            }
+            
+            // Se fetch falhou, usa perguntas incorporadas como backup
+            console.warn('⚠️ Fetch falhou, usando perguntas incorporadas como backup');
+            QUESTIONS = EMBEDDED_QUESTIONS.perguntas;
+            console.log(`✅ ${QUESTIONS.length} perguntas carregadas (modo backup)`);
+            selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
+        }
+        
+        function selectRandomQuestions(questions, count) {
+            // Algoritmo Fisher-Yates para embaralhamento mais uniforme
+            const shuffled = [...questions];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            
+            return shuffled.slice(0, count).map((q, index) => ({
+                ...q,
+                id: index + 1,
+                originalId: q.id  // Mantém referência ao ID original
+            }));
+        }
+
+        let gameState = {
+            openedChests: new Set(),
+            correctAnswers: 0,
+            totalErrors: 0,
+            currentChest: null,
+            startTime: null,
+            timerInterval: null,
+            isHighContrast: false,
+            selectedQuestions: []
+        };
+
+        async function init() {
+            try {
+                await loadQuestions();
+                loadProgress();
+                
+                // Se não há perguntas salvas, seleciona novas perguntas aleatórias das 30 disponíveis
+                if (!gameState.selectedQuestions || gameState.selectedQuestions.length === 0) {
+                    gameState.selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
+                }
+                
+                renderChests();
+                updateHUD();
+                startTimer();
+                
+                document.addEventListener('keydown', handleKeyboard);
+                
+                if (!gameState.startTime) {
+                    gameState.startTime = Date.now();
+                    saveProgress();
+                }
+                
+            } catch (error) {
+                console.error('Erro na inicialização do jogo:', error);
+                alert('Erro inesperado ao inicializar o jogo. Verifique o console para mais detalhes.');
+            }
+        }
+
+        function renderChests() {
+            const grid = document.getElementById('chests-grid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 10; i++) {
+                const chest = document.createElement('div');
+                const isOpened = gameState.openedChests.has(i);
+                chest.className = `chest ${isOpened ? 'opened floating' : ''}`;
+                chest.setAttribute('tabindex', '0');
+                chest.setAttribute('role', 'button');
+                chest.setAttribute('aria-label', `Baú ${i} - ${isOpened ? 'Aberto' : 'Fechado'}`);
+                chest.onclick = () => openChest(i);
+                
+                chest.innerHTML = `
+                    <div class="chest-number">${i}</div>
+                    <div class="chest-icon">
+                        ${gameState.openedChests.has(i) ? 
+                            `<svg viewBox="0 0 100 100" fill="currentColor">
+                                <circle cx="50" cy="50" r="45" fill="#32CD32" stroke="#228B22" stroke-width="3"/>
+                                <path d="M25 50 L45 65 L75 35" stroke="white" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>` :
+                            `<svg viewBox="0 0 100 100" fill="currentColor">
+                                <rect x="10" y="40" width="80" height="50" rx="5" fill="#8B4513"/>
+                                <rect x="15" y="30" width="70" height="25" rx="10" fill="#D2691E"/>
+                                <rect x="40" y="20" width="20" height="15" fill="#DAA520"/>
+                                <circle cx="75" cy="52" r="5" fill="#FFD700"/>
+                            </svg>`
+                        }
+                    </div>
+                `;
+                
+                grid.appendChild(chest);
+            }
+        }
+
+        function openChest(id) {
+            if (gameState.openedChests.has(id)) return;
+            if (gameState.currentChest && gameState.currentChest !== id) return;
+            
+            gameState.currentChest = id;
+            updateChestStates();
+            showQuestion(id);
+        }
+
+        function updateChestStates() {
+            const chests = document.querySelectorAll('.chest');
+            chests.forEach((chest, index) => {
+                const chestId = index + 1;
+                chest.classList.remove('disabled', 'current');
+                
+                if (gameState.openedChests.has(chestId)) {
+                    return;
+                }
+                
+                if (gameState.currentChest && gameState.currentChest !== chestId) {
+                    chest.classList.add('disabled');
+                } else if (gameState.currentChest === chestId) {
+                    chest.classList.add('current');
+                }
+                // Se não há baú atual selecionado, todos os baús não abertos ficam disponíveis
+            });
+        }
+
+        function showQuestion(id) {
+            const question = gameState.selectedQuestions.find(q => q.id === id);
+            if (!question) {
+                console.error('Pergunta não encontrada:', id);
+                return;
+            }
+            
+            const modal = document.getElementById('modal');
+            const questionText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options');
+            const feedback = document.getElementById('feedback');
+            
+            questionText.textContent = question.question;
+            optionsContainer.innerHTML = '';
+            feedback.innerHTML = '';
+            feedback.className = 'feedback';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.setAttribute('role', 'radio');
+                button.setAttribute('aria-checked', 'false');
+                button.onclick = () => checkAnswer(id, index);
+                
+                // Adiciona animação de entrada
+                button.style.opacity = '0';
+                button.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    button.style.transition = 'all 0.3s ease';
+                    button.style.opacity = '1';
+                    button.style.transform = 'translateY(0)';
+                }, index * 100);
+                
+                optionsContainer.appendChild(button);
+            });
+            
+            modal.classList.add('show');
+            setTimeout(() => {
+                if (optionsContainer.firstChild) {
+                    optionsContainer.firstChild.focus();
+                }
+            }, 300);
+        }
+
+        function checkAnswer(chestId, choiceIndex) {
+            const question = gameState.selectedQuestions.find(q => q.id === chestId);
+            const feedback = document.getElementById('feedback');
+            const options = document.querySelectorAll('.option-btn');
+            
+            options.forEach(btn => btn.disabled = true);
+            
+            // Adiciona classe de animação na opção escolhida
+            const selectedOption = options[choiceIndex];
+            
+            if (choiceIndex === question.correctIndex) {
+                selectedOption.classList.add('correct');
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `✅ Correto! ${question.explanation}`;
+                
+                gameState.correctAnswers++;
+                gameState.openedChests.add(chestId);
+                gameState.currentChest = null;
+                
+                // Anima o baú se abrindo
+                const chestElement = document.querySelector(`.chest:nth-child(${chestId})`);
+                if (chestElement) {
+                    chestElement.classList.add('opening', 'sparkle');
+                    createSuccessParticles(chestElement);
+                }
+                
+                setTimeout(() => {
+                    const modal = document.getElementById('modal');
+                    modal.classList.remove('show');
+                    
+                    renderChests();
+                    updateHUD();
+                    saveProgress();
+                    
+                    if (gameState.openedChests.size === 10) {
+                        createConfetti();
+                        setTimeout(() => finishGame(), 1000);
+                    }
+                }, 2000);
+                
+            } else {
+                selectedOption.classList.add('incorrect');
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `❌ Resposta incorreta! ${question.explanationWrong || 'Tente novamente!'}`;
+                gameState.totalErrors++;
+                
+                setTimeout(() => {
+                    feedback.innerHTML = '';
+                    feedback.className = 'feedback';
+                    options.forEach(btn => {
+                        btn.disabled = false;
+                        btn.classList.remove('correct', 'incorrect');
+                    });
+                    updateHUD();
+                    saveProgress();
+                }, 2000);
+            }
+        }
+        
+        function createSuccessParticles(element) {
+            const particleContainer = document.createElement('div');
+            particleContainer.className = 'chest-particles';
+            element.appendChild(particleContainer);
+            
+            const colors = [
+                'rgba(34, 197, 94, 0.8)',
+                'rgba(16, 185, 129, 0.8)',
+                'rgba(99, 102, 241, 0.8)',
+                'rgba(139, 92, 246, 0.8)',
+                'rgba(236, 72, 153, 0.8)'
+            ];
+            
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle success-particle';
+                
+                const angle = (i / 12) * Math.PI * 2;
+                const distance = 60 + Math.random() * 40;
+                const dx = Math.cos(angle) * distance;
+                const dy = Math.sin(angle) * distance;
+                
+                particle.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]} 0%, transparent 70%)`;
+                particle.style.setProperty('--dx', dx + 'px');
+                particle.style.setProperty('--dy', dy + 'px');
+                particle.style.animationDelay = Math.random() * 0.2 + 's';
+                
+                particleContainer.appendChild(particle);
+            }
+            
+            setTimeout(() => {
+                particleContainer.remove();
+            }, 1000);
+        }
+        
+        function createConfetti() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.className = 'confetti';
+            document.body.appendChild(confettiContainer);
+            
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#34d399', '#60a5fa', '#a78bfa'];
+            
+            for (let i = 0; i < 60; i++) {
+                const confettiPiece = document.createElement('div');
+                confettiPiece.className = 'confetti-piece';
+                confettiPiece.style.left = Math.random() * 100 + '%';
+                confettiPiece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confettiPiece.style.animationDelay = Math.random() * 3 + 's';
+                confettiPiece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                confettiPiece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                confettiContainer.appendChild(confettiPiece);
+            }
+            
+            setTimeout(() => {
+                confettiContainer.remove();
+            }, 5000);
+        }
+
+        function updateHUD() {
+            document.getElementById('opened-count').textContent = `${gameState.openedChests.size} / 10`;
+            document.getElementById('correct-count').textContent = gameState.correctAnswers;
+            document.getElementById('error-count').textContent = gameState.totalErrors;
+            
+            if (gameState.startTime) {
+                const elapsed = Date.now() - gameState.startTime;
+                const minutes = Math.floor(elapsed / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        function startTimer() {
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            gameState.timerInterval = setInterval(updateHUD, 1000);
+        }
+
+        function finishGame() {
+            clearInterval(gameState.timerInterval);
+            
+            const totalTime = Date.now() - gameState.startTime;
+            const minutes = Math.floor(totalTime / 60000);
+            const seconds = Math.floor((totalTime % 60000) / 1000);
+            
+            document.getElementById('victory-stats').innerHTML = `
+                <h2>Estatísticas Finais</h2>
+                <p><strong>Baús Abertos:</strong> 10/10</p>
+                <p><strong>Total de Acertos:</strong> ${gameState.correctAnswers}</p>
+                <p><strong>Total de Erros:</strong> ${gameState.totalErrors}</p>
+                <p><strong>Tempo Total:</strong> ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</p>
+                <p><strong>Taxa de Acerto:</strong> ${Math.round((gameState.correctAnswers / (gameState.correctAnswers + gameState.totalErrors)) * 100)}%</p>
+            `;
+            
+            const victoryScreen = document.getElementById('victory-screen');
+            victoryScreen.style.display = 'flex';
+            setTimeout(() => {
+                victoryScreen.classList.add('show');
+            }, 10);
+        }
+
+        function resetGame() {
+            clearInterval(gameState.timerInterval);
+            
+            // Seleciona novas perguntas aleatórias
+            const newSelectedQuestions = selectRandomQuestions(QUESTIONS, 10);
+            
+            gameState = {
+                openedChests: new Set(),
+                correctAnswers: 0,
+                totalErrors: 0,
+                currentChest: null,
+                startTime: Date.now(),
+                timerInterval: null,
+                isHighContrast: gameState.isHighContrast,
+                selectedQuestions: newSelectedQuestions
+            };
+            
+            const victoryScreen = document.getElementById('victory-screen');
+            victoryScreen.classList.remove('show');
+            setTimeout(() => {
+                victoryScreen.style.display = 'none';
+            }, 500);
+            
+            const modal = document.getElementById('modal');
+            modal.classList.remove('show');
+            
+            // Remove qualquer confetti restante
+            const existingConfetti = document.querySelector('.confetti');
+            if (existingConfetti) {
+                existingConfetti.remove();
+            }
+            
+            renderChests();
+            updateHUD();
+            startTimer();
+            saveProgress();
+        }
+        
+        function confirmReset() {
+            if (gameState.openedChests.size > 0 || gameState.totalErrors > 0) {
+                if (confirm('Tem certeza que deseja resetar o jogo? Todo o progresso será perdido.')) {
+                    clearProgress();
+                    resetGame();
+                }
+            } else {
+                clearProgress();
+                resetGame();
+            }
+        }
+        
+        function clearProgress() {
+            try {
+                localStorage.removeItem('chestGameProgress');
+            } catch (e) {
+                console.warn('Não foi possível limpar o progresso:', e);
+            }
+        }
+
+        function saveProgress() {
+            try {
+                const progress = {
+                    openedChests: Array.from(gameState.openedChests),
+                    correctAnswers: gameState.correctAnswers,
+                    totalErrors: gameState.totalErrors,
+                    currentChest: gameState.currentChest,
+                    startTime: gameState.startTime,
+                    isHighContrast: gameState.isHighContrast,
+                    selectedQuestions: gameState.selectedQuestions
+                };
+                localStorage.setItem('chestGameProgress', JSON.stringify(progress));
+            } catch (e) {
+                console.warn('Não foi possível salvar o progresso:', e);
+            }
+        }
+
+        function loadProgress() {
+            try {
+                const saved = localStorage.getItem('chestGameProgress');
+                if (saved) {
+                    const progress = JSON.parse(saved);
+                    gameState.openedChests = new Set(progress.openedChests || []);
+                    gameState.correctAnswers = progress.correctAnswers || 0;
+                    gameState.totalErrors = progress.totalErrors || 0;
+                    gameState.currentChest = progress.currentChest;
+                    gameState.startTime = progress.startTime;
+                    gameState.isHighContrast = progress.isHighContrast || false;
+                    gameState.selectedQuestions = progress.selectedQuestions || [];
+                    
+                    if (gameState.isHighContrast) {
+                        document.body.classList.add('dark-theme');
+                        const btn = document.querySelector('.accessibility-btn');
+                        btn.textContent = '☀️';
+                        btn.setAttribute('aria-label', 'Ativar modo claro');
+                    }
+                }
+            } catch (e) {
+                console.warn('Não foi possível carregar o progresso:', e);
+            }
+        }
+
+        function toggleHighContrast() {
+            gameState.isHighContrast = !gameState.isHighContrast;
+            document.body.classList.toggle('dark-theme');
+            
+            const btn = document.querySelector('.accessibility-btn');
+            btn.textContent = gameState.isHighContrast ? '☀️' : '🌙';
+            btn.setAttribute('aria-label', gameState.isHighContrast ? 'Ativar modo claro' : 'Ativar modo escuro');
+            
+            saveProgress();
+        }
+
+        function handleKeyboard(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('modal');
+                modal.classList.remove('show');
+                gameState.currentChest = null;
+                updateChestStates();
+                return;
+            }
+            
+            const modal = document.getElementById('modal');
+            if (modal.classList.contains('show')) {
+                const options = document.querySelectorAll('.option-btn:not([disabled])');
+                const focused = document.activeElement;
+                const currentIndex = Array.from(options).indexOf(focused);
+                
+                if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    const nextIndex = (currentIndex + 1) % options.length;
+                    options[nextIndex].focus();
+                } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    const prevIndex = currentIndex <= 0 ? options.length - 1 : currentIndex - 1;
+                    options[prevIndex].focus();
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    if (focused && focused.classList.contains('option-btn')) {
+                        focused.click();
+                    }
+                }
+            } else {
+                const chests = document.querySelectorAll('.chest:not(.disabled)');
+                const focused = document.activeElement;
+                
+                if (focused && focused.classList.contains('chest')) {
+                    const currentIndex = Array.from(document.querySelectorAll('.chest')).indexOf(focused);
+                    
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        focused.click();
+                    }
+                }
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
