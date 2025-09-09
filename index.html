@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo dos Baús - Perguntas e Respostas</title>
+    <title>Quiz Médico - Conhecimento Hospitalar</title>
     <style>
         * {
             margin: 0;
@@ -13,9 +13,9 @@
         
         body {
             font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 30%, #e2e8f0 100%);
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 30%, #bae6fd 100%);
             min-height: 100vh;
-            color: #2d3748;
+            color: #1e3a8a;
             overflow-x: hidden;
             position: relative;
         }
@@ -28,9 +28,9 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 25% 25%, rgba(79, 70, 229, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(16, 185, 129, 0.06) 0%, transparent 50%),
-                radial-gradient(circle at 50% 10%, rgba(245, 101, 101, 0.04) 0%, transparent 50%);
+                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(34, 197, 94, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(239, 68, 68, 0.04) 0%, transparent 50%);
             z-index: -1;
         }
         
@@ -739,28 +739,28 @@
     </style>
 </head>
 <body>
-    <button class="reset-btn" onclick="confirmReset()" aria-label="Resetar jogo" title="Resetar Jogo">🔄</button>
+    <button class="reset-btn" onclick="confirmReset()" aria-label="Reiniciar treinamento" title="Reiniciar Treinamento">🔄</button>
     <button class="accessibility-btn" onclick="toggleHighContrast()" aria-label="Ativar modo escuro">🌙</button>
     
     <header>
-        <h1>🏆 Jogo dos Baús 🏆</h1>
+        <h1>🏥 Quiz Médico Hospitalar 🩺</h1>
         <div class="instructions">
-            Clique nos baús para responder perguntas! Acerte para abrir o baú e continuar. Complete todos os 10 baús para vencer!
+            Teste seus conhecimentos médicos! Clique nos consultórios para responder perguntas sobre saúde e medicina. Complete todos os 10 consultórios para concluir o treinamento!
         </div>
     </header>
     
     <div class="game-container">
         <div class="hud">
             <div class="hud-item">
-                <span>Baús Abertos</span>
+                <span>Consultórios Completos</span>
                 <span class="hud-value" id="opened-count">0 / 10</span>
             </div>
             <div class="hud-item">
-                <span>Acertos</span>
+                <span>Diagnósticos Corretos</span>
                 <span class="hud-value" id="correct-count">0</span>
             </div>
             <div class="hud-item">
-                <span>Erros</span>
+                <span>Diagnósticos Incorretos</span>
                 <span class="hud-value" id="error-count">0</span>
             </div>
             <div class="hud-item">
@@ -769,7 +769,7 @@
             </div>
         </div>
         
-        <div class="chests-grid" id="chests-grid" role="grid" aria-label="Grade de baús">
+        <div class="chests-grid" id="chests-grid" role="grid" aria-label="Grade de consultórios">
         </div>
     </div>
     
@@ -782,9 +782,9 @@
     </div>
     
     <div class="victory-screen" id="victory-screen">
-        <div class="victory-title">🎉 PARABÉNS! 🎉</div>
+        <div class="victory-title">🎆 TREINAMENTO CONCLUÍDO! 🩺</div>
         <div class="victory-stats" id="victory-stats"></div>
-        <button class="restart-btn" onclick="resetGame()">🔄 Jogar Novamente</button>
+        <button class="restart-btn" onclick="resetGame()">🔄 Novo Treinamento</button>
     </div>
 
     <script>
@@ -1139,7 +1139,7 @@
                 chest.className = `chest ${isOpened ? 'opened floating' : ''}`;
                 chest.setAttribute('tabindex', '0');
                 chest.setAttribute('role', 'button');
-                chest.setAttribute('aria-label', `Baú ${i} - ${isOpened ? 'Aberto' : 'Fechado'}`);
+                chest.setAttribute('aria-label', `Consultório ${i} - ${isOpened ? 'Completo' : 'Pendente'}`);
                 chest.onclick = () => openChest(i);
                 
                 chest.innerHTML = `
@@ -1147,14 +1147,18 @@
                     <div class="chest-icon">
                         ${gameState.openedChests.has(i) ? 
                             `<svg viewBox="0 0 100 100" fill="currentColor">
-                                <circle cx="50" cy="50" r="45" fill="#32CD32" stroke="#228B22" stroke-width="3"/>
+                                <circle cx="50" cy="50" r="45" fill="#10b981" stroke="#059669" stroke-width="3"/>
                                 <path d="M25 50 L45 65 L75 35" stroke="white" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>` :
                             `<svg viewBox="0 0 100 100" fill="currentColor">
-                                <rect x="10" y="40" width="80" height="50" rx="5" fill="#8B4513"/>
-                                <rect x="15" y="30" width="70" height="25" rx="10" fill="#D2691E"/>
-                                <rect x="40" y="20" width="20" height="15" fill="#DAA520"/>
-                                <circle cx="75" cy="52" r="5" fill="#FFD700"/>
+                                <rect x="20" y="25" width="60" height="50" rx="8" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
+                                <rect x="25" y="30" width="50" height="5" fill="#ef4444"/>
+                                <circle cx="35" cy="45" r="3" fill="#3b82f6"/>
+                                <circle cx="50" cy="45" r="3" fill="#3b82f6"/>
+                                <circle cx="65" cy="45" r="3" fill="#3b82f6"/>
+                                <rect x="30" y="55" width="40" height="2" fill="#6b7280"/>
+                                <rect x="30" y="60" width="30" height="2" fill="#6b7280"/>
+                                <rect x="30" y="65" width="35" height="2" fill="#6b7280"/>
                             </svg>`
                         }
                     </div>
@@ -1381,12 +1385,12 @@
             const seconds = Math.floor((totalTime % 60000) / 1000);
             
             document.getElementById('victory-stats').innerHTML = `
-                <h2>Estatísticas Finais</h2>
-                <p><strong>Baús Abertos:</strong> 10/10</p>
-                <p><strong>Total de Acertos:</strong> ${gameState.correctAnswers}</p>
-                <p><strong>Total de Erros:</strong> ${gameState.totalErrors}</p>
-                <p><strong>Tempo Total:</strong> ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</p>
-                <p><strong>Taxa de Acerto:</strong> ${Math.round((gameState.correctAnswers / (gameState.correctAnswers + gameState.totalErrors)) * 100)}%</p>
+                <h2>Relatório do Treinamento</h2>
+                <p><strong>Consultórios Completos:</strong> 10/10</p>
+                <p><strong>Diagnósticos Corretos:</strong> ${gameState.correctAnswers}</p>
+                <p><strong>Diagnósticos Incorretos:</strong> ${gameState.totalErrors}</p>
+                <p><strong>Tempo de Treinamento:</strong> ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</p>
+                <p><strong>Taxa de Precisão:</strong> ${Math.round((gameState.correctAnswers / (gameState.correctAnswers + gameState.totalErrors)) * 100)}%</p>
             `;
             
             const victoryScreen = document.getElementById('victory-screen');
@@ -1436,7 +1440,7 @@
         
         function confirmReset() {
             if (gameState.openedChests.size > 0 || gameState.totalErrors > 0) {
-                if (confirm('Tem certeza que deseja resetar o jogo? Todo o progresso será perdido.')) {
+                if (confirm('Tem certeza que deseja reiniciar o treinamento? Todo o progresso será perdido.')) {
                     clearProgress();
                     resetGame();
                 }
