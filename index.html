@@ -110,6 +110,24 @@
             color: #f1f5f9 !important;
         }
         
+        .dark-theme #name-modal .modal h2 {
+            color: #f1f5f9 !important;
+        }
+        
+        .dark-theme #name-modal .modal p {
+            color: #cbd5e1 !important;
+        }
+        
+        .dark-theme #player-name {
+            background: rgba(51, 65, 85, 0.4) !important;
+            border: 2px solid rgba(148, 163, 184, 0.2) !important;
+            color: #f1f5f9 !important;
+        }
+        
+        .dark-theme #player-name::placeholder {
+            color: #94a3b8 !important;
+        }
+        
         header {
             text-align: center;
             padding: 32px 20px;
@@ -787,247 +805,89 @@
         <button class="restart-btn" onclick="resetGame()">🔄 Novo Treinamento</button>
     </div>
 
+    <div class="modal-overlay" id="name-modal" role="dialog" aria-modal="true" aria-labelledby="name-modal-title">
+        <div class="modal">
+            <h2 id="name-modal-title" style="font-size: 1.8rem; margin-bottom: 20px; color: #1a202c;">🏥 Bem-vindo ao Treinamento Hospitalar! 🩺</h2>
+            <p style="margin-bottom: 30px; font-size: 1.1rem; color: #4a5568;">Para começarmos o treinamento, digite seu nome:</p>
+            <input type="text" id="player-name" placeholder="Digite seu nome..." style="width: 100%; padding: 15px; font-size: 1rem; border: 2px solid #e2e8f0; border-radius: 10px; margin-bottom: 20px; text-align: center; font-weight: 500;" maxlength="30">
+            <button id="start-game-btn" onclick="startGameWithName()" style="padding: 15px 30px; font-size: 1.1rem; font-weight: 600; background: #10b981; color: white; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); width: 100%;" disabled>
+                🎯 Iniciar Treinamento
+            </button>
+        </div>
+    </div>
+
     <script>
         let QUESTIONS = [];
         let selectedQuestions = [];
         
-        // Perguntas incorporadas para funcionar com file://
-        const EMBEDDED_QUESTIONS = {
-            "perguntas": [
-                {
-                    "id": 1,
-                    "question": "Qual é a capital do Brasil?",
-                    "options": ["Rio de Janeiro", "São Paulo", "Brasília", "Belo Horizonte"],
-                    "correctIndex": 2,
-                    "explanation": "Brasília é a capital federal do Brasil desde 1960!",
-                    "explanationWrong": "Embora seja uma cidade importante, não é a capital do país."
-                },
-                {
-                    "id": 2,
-                    "question": "Quanto é 2 + 2?",
-                    "options": ["3", "4", "5"],
-                    "correctIndex": 1,
-                    "explanation": "2 + 2 = 4. Matemática básica!",
-                    "explanationWrong": "Essa não é a soma correta. Revise a adição básica."
-                },
-                {
-                    "id": 3,
-                    "question": "Qual planeta é conhecido como 'planeta vermelho'?",
-                    "options": ["Vênus", "Marte", "Júpiter", "Saturno"],
-                    "correctIndex": 1,
-                    "explanation": "Marte tem coloração avermelhada devido ao óxido de ferro em sua superfície.",
-                    "explanationWrong": "Este planeta não tem a característica cor avermelhada."
-                },
-                {
-                    "id": 4,
-                    "question": "Qual destas é uma cor primária?",
-                    "options": ["Verde", "Roxo", "Vermelho", "Laranja"],
-                    "correctIndex": 2,
-                    "explanation": "As cores primárias são vermelho, azul e amarelo.",
-                    "explanationWrong": "Esta é uma cor secundária, formada pela mistura de cores primárias."
-                },
-                {
-                    "id": 5,
-                    "question": "Qual é o maior oceano do mundo?",
-                    "options": ["Atlântico", "Índico", "Ártico", "Pacífico"],
-                    "correctIndex": 3,
-                    "explanation": "O Oceano Pacífico é o maior oceano, cobrindo cerca de 1/3 da superfície terrestre.",
-                    "explanationWrong": "Este oceano é grande, mas não é o maior do planeta."
-                },
-                {
-                    "id": 6,
-                    "question": "Quem escreveu 'Dom Casmurro'?",
-                    "options": ["José de Alencar", "Machado de Assis", "Clarice Lispector", "Guimarães Rosa"],
-                    "correctIndex": 1,
-                    "explanation": "Machado de Assis é considerado um dos maiores escritores brasileiros.",
-                    "explanationWrong": "Este autor não escreveu 'Dom Casmurro', embora seja um grande escritor brasileiro."
-                },
-                {
-                    "id": 7,
-                    "question": "Qual é a principal linguagem de programação dos navegadores web?",
-                    "options": ["Python", "Java", "JavaScript", "C++"],
-                    "correctIndex": 2,
-                    "explanation": "JavaScript é a linguagem nativa dos navegadores web."
-                },
-                {
-                    "id": 8,
-                    "question": "Qual é a sigla para Inteligência Artificial?",
-                    "options": ["AI", "IA", "IT", "IC"],
-                    "correctIndex": 1,
-                    "explanation": "IA é a abreviação de Inteligência Artificial em português."
-                },
-                {
-                    "id": 9,
-                    "question": "Em que continente fica o Egito?",
-                    "options": ["Ásia", "África", "Europa", "América"],
-                    "correctIndex": 1,
-                    "explanation": "O Egito está localizado no nordeste da África."
-                },
-                {
-                    "id": 10,
-                    "question": "Qual é o gás mais abundante na atmosfera terrestre?",
-                    "options": ["Oxigênio", "Nitrogênio", "Dióxido de Carbono", "Hidrogênio"],
-                    "correctIndex": 1,
-                    "explanation": "O nitrogênio compõe cerca de 78% da atmosfera terrestre."
-                },
-                {
-                    "id": 11,
-                    "question": "Qual é o menor país do mundo?",
-                    "options": ["Mônaco", "Vaticano", "San Marino", "Liechtenstein"],
-                    "correctIndex": 1,
-                    "explanation": "O Vaticano tem apenas 0,44 km² de área."
-                },
-                {
-                    "id": 12,
-                    "question": "Quantos estados tem o Brasil?",
-                    "options": ["25", "26", "27", "28"],
-                    "correctIndex": 1,
-                    "explanation": "O Brasil tem 26 estados mais o Distrito Federal."
-                },
-                {
-                    "id": 13,
-                    "question": "Qual é o maior animal do mundo?",
-                    "options": ["Elefante Africano", "Baleia Azul", "Girafa", "Tubarão Branco"],
-                    "correctIndex": 1,
-                    "explanation": "A baleia azul pode chegar a 30 metros de comprimento."
-                },
-                {
-                    "id": 14,
-                    "question": "Em que ano o homem pisou na Lua pela primeira vez?",
-                    "options": ["1967", "1968", "1969", "1970"],
-                    "correctIndex": 2,
-                    "explanation": "Neil Armstrong pisou na Lua em 20 de julho de 1969."
-                },
-                {
-                    "id": 15,
-                    "question": "Qual é a moeda do Japão?",
-                    "options": ["Yuan", "Won", "Yen", "Dong"],
-                    "correctIndex": 2,
-                    "explanation": "O Yen é a moeda oficial do Japão."
-                },
-                {
-                    "id": 16,
-                    "question": "Quantos minutos tem uma hora?",
-                    "options": ["50", "60", "70", "80"],
-                    "correctIndex": 1,
-                    "explanation": "Uma hora tem 60 minutos."
-                },
-                {
-                    "id": 17,
-                    "question": "Qual é o rio mais longo do mundo?",
-                    "options": ["Rio Amazonas", "Rio Nilo", "Rio Mississippi", "Rio Yangtzé"],
-                    "correctIndex": 1,
-                    "explanation": "O Rio Nilo, com 6.650 km, é considerado o mais longo do mundo."
-                },
-                {
-                    "id": 18,
-                    "question": "Quantos lados tem um triângulo?",
-                    "options": ["2", "3", "4", "5"],
-                    "correctIndex": 1,
-                    "explanation": "Um triângulo sempre tem três lados."
-                },
-                {
-                    "id": 19,
-                    "question": "Qual é o animal símbolo da WWF?",
-                    "options": ["Tigre", "Leão", "Panda", "Urso Polar"],
-                    "correctIndex": 2,
-                    "explanation": "O panda gigante é o símbolo da WWF desde 1961."
-                },
-                {
-                    "id": 20,
-                    "question": "Em que cidade fica a Torre Eiffel?",
-                    "options": ["Londres", "Roma", "Paris", "Berlim"],
-                    "correctIndex": 2,
-                    "explanation": "A Torre Eiffel está localizada em Paris, França."
-                },
-                {
-                    "id": 21,
-                    "question": "Qual é o maior planeta do sistema solar?",
-                    "options": ["Terra", "Saturno", "Júpiter", "Netuno"],
-                    "correctIndex": 2,
-                    "explanation": "Júpiter é o maior planeta do nosso sistema solar."
-                },
-                {
-                    "id": 22,
-                    "question": "Quantos continentes existem?",
-                    "options": ["5", "6", "7", "8"],
-                    "correctIndex": 2,
-                    "explanation": "Existem 7 continentes: América do Norte, América do Sul, Europa, Ásia, África, Oceania e Antártida."
-                },
-                {
-                    "id": 23,
-                    "question": "Qual é a fórmula química da água?",
-                    "options": ["H2O", "CO2", "NaCl", "O2"],
-                    "correctIndex": 0,
-                    "explanation": "H2O representa duas moléculas de hidrogênio e uma de oxigênio.",
-                    "explanationWrong": "Esta fórmula representa outro composto químico, não a água."
-                },
-                {
-                    "id": 24,
-                    "question": "Quem pintou a Mona Lisa?",
-                    "options": ["Michelangelo", "Leonardo da Vinci", "Picasso", "Van Gogh"],
-                    "correctIndex": 1,
-                    "explanation": "Leonardo da Vinci pintou a Mona Lisa entre 1503 e 1519."
-                },
-                {
-                    "id": 25,
-                    "question": "Qual é o metal mais abundante na crosta terrestre?",
-                    "options": ["Ferro", "Alumínio", "Cobre", "Ouro"],
-                    "correctIndex": 1,
-                    "explanation": "O alumínio representa cerca de 8% da crosta terrestre."
-                },
-                {
-                    "id": 26,
-                    "question": "Em que ano foi descoberto o Brasil?",
-                    "options": ["1498", "1500", "1502", "1504"],
-                    "correctIndex": 1,
-                    "explanation": "O Brasil foi descoberto por Pedro Álvares Cabral em 1500."
-                },
-                {
-                    "id": 27,
-                    "question": "Qual é a velocidade da luz?",
-                    "options": ["300.000 km/s", "150.000 km/s", "450.000 km/s", "600.000 km/s"],
-                    "correctIndex": 0,
-                    "explanation": "A velocidade da luz no vácuo é aproximadamente 300.000 km/s."
-                },
-                {
-                    "id": 28,
-                    "question": "Quantos ossos tem o corpo humano adulto?",
-                    "options": ["196", "206", "216", "226"],
-                    "correctIndex": 1,
-                    "explanation": "O corpo humano adulto tem 206 ossos."
-                },
-                {
-                    "id": 29,
-                    "question": "Qual é o idioma mais falado no mundo?",
-                    "options": ["Inglês", "Mandarim", "Espanhol", "Hindi"],
-                    "correctIndex": 1,
-                    "explanation": "O mandarim (chinês) é falado por mais de 1 bilhão de pessoas."
-                },
-                {
-                    "id": 30,
-                    "question": "Em que estação do ano as folhas das árvores ficam amarelas?",
-                    "options": ["Primavera", "Verão", "Outono", "Inverno"],
-                    "correctIndex": 2,
-                    "explanation": "No outono, as folhas ficam amarelas e começam a cair."
-                }
-            ]
+        // Dados criptografados embedded (resolve problema de CORS)
+        const ENCRYPTED_DATA =         {
+                "version": "1.0",
+                "data": "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",
+                "checksum": "2030"
         };
         
+        // Função para descriptografar as perguntas
+        function decryptData(encryptedData) {
+            try {
+                const key = "MedicalQuizSecure2024";
+                
+                // Desfaz o embaralhamento (inverte grupos de 4 caracteres)
+                let unscrambled = '';
+                for (let i = 0; i < encryptedData.length; i += 4) {
+                    const chunk = encryptedData.substr(i, 4);
+                    if (chunk.length === 4) {
+                        unscrambled += chunk.split('').reverse().join('');
+                    } else {
+                        unscrambled += chunk;
+                    }
+                }
+                
+                // Decodifica Base64
+                const binaryData = atob(unscrambled);
+                
+                // Desfaz o XOR
+                let decrypted = '';
+                for (let i = 0; i < binaryData.length; i++) {
+                    const keyChar = key.charCodeAt(i % key.length);
+                    const encryptedChar = binaryData.charCodeAt(i);
+                    decrypted += String.fromCharCode(encryptedChar ^ keyChar);
+                }
+                
+                return JSON.parse(decrypted);
+            } catch (error) {
+                console.error('Erro na descriptografia:', error);
+                throw new Error('Não foi possível descriptografar as perguntas');
+            }
+        }
+        
         async function loadQuestions() {
-            const isFileProtocol = window.location.protocol === 'file:';
+            console.log('🔄 Carregando perguntas...');
             
-            if (isFileProtocol) {
-                console.log('📁 Detectado protocolo file:// - usando perguntas incorporadas');
-                QUESTIONS = EMBEDDED_QUESTIONS.perguntas;
-                console.log(`✅ ${QUESTIONS.length} perguntas carregadas (modo file://)`);
-                selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
-                return;
+            // Primeiro tenta usar dados embedded (resolve CORS)
+            try {
+                console.log('🔓 Descriptografando perguntas embedded...');
+                const decryptedData = decryptData(ENCRYPTED_DATA.data);
+                
+                if (decryptedData && decryptedData.perguntas && Array.isArray(decryptedData.perguntas)) {
+                    QUESTIONS = decryptedData.perguntas;
+                    console.log(`✅ ${QUESTIONS.length} perguntas descriptografadas (embedded)`);
+                    
+                    if (QUESTIONS.length >= 10) {
+                        selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Falha ao usar dados embedded:', error.message);
             }
             
-            console.log('🌍 Detectado protocolo HTTP - tentando carregar via fetch');
-            
+            // Fallback: tenta carregar de arquivos externos
+            console.log('🌍 Tentando carregar via HTTP...');
             const possiblePaths = [
+                './questions.dat',
+                'questions.dat',
+                '/questions.dat',
                 './perguntas.json',
                 'perguntas.json',
                 '/perguntas.json'
@@ -1037,10 +897,8 @@
             
             for (const path of possiblePaths) {
                 try {
-                    console.log(`Tentando carregar perguntas de: ${path}`);
+                    console.log(`Tentando carregar de: ${path}`);
                     const response = await fetch(path);
-                    
-                    console.log(`Response status: ${response.status} ${response.statusText}`);
                     
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -1048,19 +906,32 @@
                     
                     const data = await response.json();
                     
-                    if (!data || !data.perguntas || !Array.isArray(data.perguntas)) {
-                        throw new Error('Formato inválido do arquivo JSON');
+                    // Verifica se é arquivo criptografado (.dat)
+                    if (path.endsWith('.dat') && data.data && data.version) {
+                        console.log('🔓 Descriptografando perguntas externas...');
+                        const decryptedData = decryptData(data.data);
+                        
+                        if (!decryptedData || !decryptedData.perguntas || !Array.isArray(decryptedData.perguntas)) {
+                            throw new Error('Formato inválido após descriptografia');
+                        }
+                        
+                        QUESTIONS = decryptedData.perguntas;
+                        console.log(`✅ ${QUESTIONS.length} perguntas descriptografadas de ${path}`);
+                    } 
+                    // Arquivo JSON não criptografado (fallback)
+                    else if (data.perguntas && Array.isArray(data.perguntas)) {
+                        QUESTIONS = data.perguntas;
+                        console.log(`✅ ${QUESTIONS.length} perguntas carregadas de ${path} (não criptografado)`);
+                    } else {
+                        throw new Error('Formato de arquivo inválido');
                     }
-                    
-                    QUESTIONS = data.perguntas;
-                    console.log(`✅ ${QUESTIONS.length} perguntas carregadas via HTTP de ${path}`);
                     
                     if (QUESTIONS.length < 10) {
                         throw new Error(`Apenas ${QUESTIONS.length} perguntas encontradas. Mínimo necessário: 10`);
                     }
                     
                     selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
-                    return; // Sucesso - sai da função
+                    return; // Sucesso
                     
                 } catch (error) {
                     console.warn(`❌ Falha ao carregar de ${path}:`, error.message);
@@ -1069,11 +940,8 @@
                 }
             }
             
-            // Se fetch falhou, usa perguntas incorporadas como backup
-            console.warn('⚠️ Fetch falhou, usando perguntas incorporadas como backup');
-            QUESTIONS = EMBEDDED_QUESTIONS.perguntas;
-            console.log(`✅ ${QUESTIONS.length} perguntas carregadas (modo backup)`);
-            selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
+            // Se não conseguiu carregar nada
+            throw new Error(`Não foi possível carregar as perguntas. Último erro: ${lastError?.message}`);
         }
         
         function selectRandomQuestions(questions, count) {
@@ -1099,7 +967,8 @@
             startTime: null,
             timerInterval: null,
             isHighContrast: false,
-            selectedQuestions: []
+            selectedQuestions: [],
+            playerName: ""
         };
 
         async function init() {
@@ -1112,21 +981,111 @@
                     gameState.selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
                 }
                 
-                renderChests();
-                updateHUD();
-                startTimer();
-                
                 document.addEventListener('keydown', handleKeyboard);
                 
-                if (!gameState.startTime) {
-                    gameState.startTime = Date.now();
-                    saveProgress();
+                // Se o jogador não tem nome ou não há progresso salvo, mostra modal de nome
+                if (!gameState.playerName || gameState.openedChests.size === 0) {
+                    showNameModal();
+                } else {
+                    // Continua jogo existente
+                    renderChests();
+                    updateHUD();
+                    startTimer();
+                    
+                    if (!gameState.startTime) {
+                        gameState.startTime = Date.now();
+                        saveProgress();
+                    }
                 }
                 
             } catch (error) {
                 console.error('Erro na inicialização do jogo:', error);
-                alert('Erro inesperado ao inicializar o jogo. Verifique o console para mais detalhes.');
+                
+                // Mostra erro mais específico para problemas de carregamento
+                let errorMessage = 'Erro ao carregar as perguntas do jogo.';
+                
+                if (error.message.includes('descriptografar')) {
+                    errorMessage = 'Erro na descriptografia das perguntas. Arquivo pode estar corrompido.';
+                } else if (error.message.includes('HTTP')) {
+                    errorMessage = 'Erro de conexão. Verifique se os arquivos estão no local correto.';
+                } else if (error.message.includes('Não foi possível carregar')) {
+                    errorMessage = 'Arquivos de perguntas não encontrados. Certifique-se de que questions.dat está presente.';
+                }
+                
+                const instructions = document.querySelector('.instructions');
+                if (instructions) {
+                    instructions.innerHTML = `
+                        <div style="color: #dc2626; font-weight: bold; margin-bottom: 15px;">❌ ${errorMessage}</div>
+                        <div style="font-size: 0.9rem; color: #6b7280;">
+                            Verifique o console do navegador (F12) para mais detalhes.
+                        </div>
+                    `;
+                }
             }
+        }
+
+        function showNameModal() {
+            const nameModal = document.getElementById('name-modal');
+            const nameInput = document.getElementById('player-name');
+            const startBtn = document.getElementById('start-game-btn');
+            
+            nameModal.classList.add('show');
+            
+            // Foca no input após a animação
+            setTimeout(() => {
+                nameInput.focus();
+            }, 300);
+            
+            // Habilita/desabilita botão baseado no input
+            nameInput.addEventListener('input', function() {
+                const name = this.value.trim();
+                startBtn.disabled = name.length < 2;
+                if (name.length >= 2) {
+                    startBtn.style.background = '#10b981';
+                    startBtn.style.cursor = 'pointer';
+                } else {
+                    startBtn.style.background = '#9ca3af';
+                    startBtn.style.cursor = 'not-allowed';
+                }
+            });
+            
+            // Permite iniciar com Enter
+            nameInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && this.value.trim().length >= 2) {
+                    startGameWithName();
+                }
+            });
+        }
+        
+        function startGameWithName() {
+            const nameInput = document.getElementById('player-name');
+            const playerName = nameInput.value.trim();
+            
+            if (playerName.length < 2) {
+                alert('Por favor, digite um nome com pelo menos 2 caracteres.');
+                nameInput.focus();
+                return;
+            }
+            
+            gameState.playerName = playerName;
+            gameState.startTime = Date.now();
+            
+            const nameModal = document.getElementById('name-modal');
+            nameModal.classList.remove('show');
+            
+            // Atualiza a saudação no cabeçalho
+            updateHeaderWithPlayerName(playerName);
+            
+            // Inicia o jogo
+            renderChests();
+            updateHUD();
+            startTimer();
+            saveProgress();
+        }
+        
+        function updateHeaderWithPlayerName(playerName) {
+            const instructions = document.querySelector('.instructions');
+            instructions.innerHTML = `Olá, <strong>${playerName}</strong>! Teste seus conhecimentos médicos! Clique nos consultórios para responder perguntas sobre saúde e medicina. Complete todos os 10 consultórios para concluir o treinamento!`;
         }
 
         function renderChests() {
@@ -1386,6 +1345,7 @@
             
             document.getElementById('victory-stats').innerHTML = `
                 <h2>Relatório do Treinamento</h2>
+                ${gameState.playerName ? `<p style="font-size: 1.3rem; color: #10b981; margin-bottom: 20px;"><strong>Parabéns, ${gameState.playerName}! 🎉</strong></p>` : ''}
                 <p><strong>Consultórios Completos:</strong> 10/10</p>
                 <p><strong>Diagnósticos Corretos:</strong> ${gameState.correctAnswers}</p>
                 <p><strong>Diagnósticos Incorretos:</strong> ${gameState.totalErrors}</p>
@@ -1406,6 +1366,10 @@
             // Seleciona novas perguntas aleatórias
             const newSelectedQuestions = selectRandomQuestions(QUESTIONS, 10);
             
+            // Preserva o nome do jogador e preferências
+            const preservedPlayerName = gameState.playerName;
+            const preservedHighContrast = gameState.isHighContrast;
+            
             gameState = {
                 openedChests: new Set(),
                 correctAnswers: 0,
@@ -1413,8 +1377,9 @@
                 currentChest: null,
                 startTime: Date.now(),
                 timerInterval: null,
-                isHighContrast: gameState.isHighContrast,
-                selectedQuestions: newSelectedQuestions
+                isHighContrast: preservedHighContrast,
+                selectedQuestions: newSelectedQuestions,
+                playerName: preservedPlayerName
             };
             
             const victoryScreen = document.getElementById('victory-screen');
@@ -1467,7 +1432,8 @@
                     currentChest: gameState.currentChest,
                     startTime: gameState.startTime,
                     isHighContrast: gameState.isHighContrast,
-                    selectedQuestions: gameState.selectedQuestions
+                    selectedQuestions: gameState.selectedQuestions,
+                    playerName: gameState.playerName
                 };
                 localStorage.setItem('chestGameProgress', JSON.stringify(progress));
             } catch (e) {
@@ -1487,6 +1453,12 @@
                     gameState.startTime = progress.startTime;
                     gameState.isHighContrast = progress.isHighContrast || false;
                     gameState.selectedQuestions = progress.selectedQuestions || [];
+                    gameState.playerName = progress.playerName || "";
+                    
+                    // Se há um nome salvo, atualiza o cabeçalho
+                    if (gameState.playerName) {
+                        updateHeaderWithPlayerName(gameState.playerName);
+                    }
                     
                     if (gameState.isHighContrast) {
                         document.body.classList.add('dark-theme');
