@@ -942,9 +942,24 @@
                     decrypted += String.fromCharCode(encryptedChar ^ keyChar);
                 }
 
+                // Debug: log the first 200 characters of decrypted data
+                console.log('Dados descriptografados (primeiros 200 chars):', decrypted.substring(0, 200));
+                console.log('Tamanho dos dados descriptografados:', decrypted.length);
+                
+                // Check for control characters that might cause JSON parsing issues
+                const hasControlChars = /[\x00-\x1f\x7f-\x9f]/.test(decrypted);
+                if (hasControlChars) {
+                    console.warn('Dados contêm caracteres de controle que podem causar erro no JSON');
+                    // Try to clean control characters except for valid JSON whitespace
+                    decrypted = decrypted.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]/g, '');
+                }
+
                 return JSON.parse(decrypted);
             } catch (error) {
                 console.error('Erro na descriptografia:', error);
+                if (error instanceof SyntaxError) {
+                    console.error('Erro de sintaxe JSON. Verifique se os dados estão corrompidos.');
+                }
                 throw new Error('Não foi possível descriptografar as perguntas');
             }
         }
@@ -952,84 +967,28 @@
         async function loadQuestions() {
             console.log('🔄 Carregando perguntas...');
 
-            // Primeiro tenta usar dados embedded (resolve CORS)
             try {
                 console.log('🔓 Descriptografando perguntas embedded...');
                 const decryptedData = decryptData(ENCRYPTED_DATA.data);
 
-                if (decryptedData && decryptedData.perguntas && Array.isArray(decryptedData.perguntas)) {
-                    QUESTIONS = decryptedData.perguntas;
-                    console.log(`✅ ${QUESTIONS.length} perguntas descriptografadas (embedded)`);
-
-                    if (QUESTIONS.length >= 10) {
-                        selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
-                        return;
-                    }
+                if (!decryptedData || !decryptedData.perguntas || !Array.isArray(decryptedData.perguntas)) {
+                    throw new Error('Dados embedded inválidos ou corrompidos');
                 }
+
+                QUESTIONS = decryptedData.perguntas;
+                console.log(`✅ ${QUESTIONS.length} perguntas descriptografadas`);
+
+                if (QUESTIONS.length < 10) {
+                    throw new Error(`Apenas ${QUESTIONS.length} perguntas encontradas. Mínimo necessário: 10`);
+                }
+
+                selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
+                console.log('🎯 Perguntas selecionadas para o jogo');
+
             } catch (error) {
-                console.warn('⚠️ Falha ao usar dados embedded:', error.message);
+                console.error('❌ Erro ao carregar perguntas:', error.message);
+                throw new Error(`Não foi possível carregar as perguntas: ${error.message}`);
             }
-
-            // Fallback: tenta carregar de arquivos externos
-            console.log('🌍 Tentando carregar via HTTP...');
-            const possiblePaths = [
-                './questions.dat',
-                'questions.dat',
-                '/questions.dat',
-                './perguntas.json',
-                'perguntas.json',
-                '/perguntas.json'
-            ];
-
-            let lastError;
-
-            for (const path of possiblePaths) {
-                try {
-                    console.log(`Tentando carregar de: ${path}`);
-                    const response = await fetch(path);
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-
-                    const data = await response.json();
-
-                    // Verifica se é arquivo criptografado (.dat)
-                    if (path.endsWith('.dat') && data.data && data.version) {
-                        console.log('🔓 Descriptografando perguntas externas...');
-                        const decryptedData = decryptData(data.data);
-
-                        if (!decryptedData || !decryptedData.perguntas || !Array.isArray(decryptedData.perguntas)) {
-                            throw new Error('Formato inválido após descriptografia');
-                        }
-
-                        QUESTIONS = decryptedData.perguntas;
-                        console.log(`✅ ${QUESTIONS.length} perguntas descriptografadas de ${path}`);
-                    }
-                    // Arquivo JSON não criptografado (fallback)
-                    else if (data.perguntas && Array.isArray(data.perguntas)) {
-                        QUESTIONS = data.perguntas;
-                        console.log(`✅ ${QUESTIONS.length} perguntas carregadas de ${path} (não criptografado)`);
-                    } else {
-                        throw new Error('Formato de arquivo inválido');
-                    }
-
-                    if (QUESTIONS.length < 10) {
-                        throw new Error(`Apenas ${QUESTIONS.length} perguntas encontradas. Mínimo necessário: 10`);
-                    }
-
-                    selectedQuestions = selectRandomQuestions(QUESTIONS, 10);
-                    return; // Sucesso
-
-                } catch (error) {
-                    console.warn(`❌ Falha ao carregar de ${path}:`, error.message);
-                    lastError = error;
-                    continue;
-                }
-            }
-
-            // Se não conseguiu carregar nada
-            throw new Error(`Não foi possível carregar as perguntas. Último erro: ${lastError?.message}`);
         }
 
         function selectRandomQuestions(questions, count) {
